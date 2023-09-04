@@ -26,6 +26,7 @@ try:
     financial_data = pd.read_csv(financial_data_path)
     logger.info(f"Loaded financial data with schema {financial_data.columns}.")
 
-    personal_data_filtered = personal_data[personal_data.country.isin(countries)]
+    personal_data_filtered = personal_data[personal_data["country"].isin(countries)].drop(columns=["first_name", "last_name", "country"])
+    financial_data_filtered = financial_data.drop(columns=["cc_n"])    
 except Exception as exception:
     logger.error(exception)
