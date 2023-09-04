@@ -12,4 +12,5 @@ countries = args.countries
 personal_data = pd.read_csv(personal_data_path)
 financial_data = pd.read_csv(financial_data_path)
 
-personal_data_filtered = personal_data[personal_data.country.isin(countries)]
+personal_data_filtered = personal_data[personal_data["country"].isin(countries)].drop(columns=["first_name", "last_name", "country"])
+financial_data_filtered = financial_data.drop(columns=["cc_n"])
