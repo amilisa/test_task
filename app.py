@@ -1,6 +1,16 @@
-import cli_argument_parser
 import pandas as pd
+import yaml
 
+import logging.config
+
+import cli_argument_parser
+
+
+with open("logging_config.yaml", "r") as config:
+    log_config = yaml.safe_load(config.read())
+
+logging.config.dictConfig(log_config) 
+logger = logging.getLogger("app")
 
 parser = cli_argument_parser.CliArgumentParser()
 parser.configure_parser()
@@ -9,7 +19,13 @@ personal_data_path = args.pdata
 financial_data_path = args.fdata
 countries = args.countries
 
-personal_data = pd.read_csv(personal_data_path)
-financial_data = pd.read_csv(financial_data_path)
+try:
+    personal_data = pd.read_csv(personal_data_path)
+    logger.info(f"Loaded personal data with schema {personal_data.columns}.")
 
-personal_data_filtered = personal_data[personal_data.country.isin(countries)]
+    financial_data = pd.read_csv(financial_data_path)
+    logger.info(f"Loaded financial data with schema {financial_data.columns}.")
+
+    personal_data_filtered = personal_data[personal_data.country.isin(countries)]
+except Exception as exception:
+    logger.error(exception)
