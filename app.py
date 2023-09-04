@@ -27,6 +27,13 @@ try:
     logger.info(f"Loaded financial data with schema {financial_data.columns}.")
 
     personal_data_filtered = personal_data[personal_data["country"].isin(countries)].drop(columns=["first_name", "last_name", "country"])
-    financial_data_filtered = financial_data.drop(columns=["cc_n"])    
+    financial_data_filtered = financial_data.drop(columns=["cc_n"])
+    
+    datasets_merged = personal_data_filtered\
+        .merge(financial_data_filtered, how="left", on="id")\
+        .rename(columns={"id": "client_identifier", "btc_a": "bitcoin_address", "cc_t": "credit_card_type"})
+    logger.info(f"Merged two datasets. Final schema: {datasets_merged.columns}.")
+    
+    datasets_merged.to_csv("client_data/client_data.csv", index=False)
 except Exception as exception:
     logger.error(exception)
