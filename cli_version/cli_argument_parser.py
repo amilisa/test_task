@@ -1,5 +1,5 @@
 import argparse
-import arguments
+from cli_version import arguments
 
 class CliArgumentParser:
     def __init__(self):
