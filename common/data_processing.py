@@ -40,7 +40,7 @@ def save_data(dataset, output_path):
     """
     Save merged data to a CSV file.
     :param dataset: DataFrame to save
-    :param output_path: Path to the output directory
+    :param output_path: Path to the output file
     :return:
     """
     dataset.to_csv(output_path, index=False)
