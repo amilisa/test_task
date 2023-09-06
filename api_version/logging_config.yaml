@@ -1,0 +1,15 @@
+version: 1
+formatters:
+  common:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+handlers:
+  file:
+    class: logging.FileHandler
+    filename: "api_version/logs/logs.log"
+    formatter: common
+loggers:
+  api:
+    level: INFO
+    handlers: [file]
+    propogate: False
+    
