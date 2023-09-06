@@ -5,7 +5,7 @@ formatters:
 handlers:
   file:
     class: logging.FileHandler
-    filename: "logs/logs.log"
+    filename: "cli_version/logs/logs.log"
     formatter: common
 loggers:
   app:
