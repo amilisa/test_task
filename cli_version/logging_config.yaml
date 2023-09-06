@@ -8,7 +8,7 @@ handlers:
     filename: "cli_version/logs/logs.log"
     formatter: common
 loggers:
-  app:
+  cli_app:
     level: INFO
     handlers: [file]
     propogate: False

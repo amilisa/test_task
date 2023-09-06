@@ -14,11 +14,11 @@ from cli_version import cli_argument_parser
 
 CLI_VERSION = "cli_version"
 
-with open(CLI_VERSION + "/logging_config.yaml", "r") as config:
+with open(os.path.join(CLI_VERSION, "logging_config.yaml"), "r") as config:
     log_config = yaml.safe_load(config.read())
 
 logging.config.dictConfig(log_config) 
-logger = logging.getLogger("app")
+logger = logging.getLogger("cli_app")
 
 parser = cli_argument_parser.CliArgumentParser()
 parser.configure_parser()
@@ -45,6 +45,9 @@ try:
     )
     logger.info(f"Merged two datasets. Final schema: {datasets_merged.columns}.")
     
-    dp.save_data(datasets_merged, CLI_VERSION + "/client_data/client_data.csv")
+    output_path = os.path.join(CLI_VERSION, "client_data")
+    os.makedirs(output_path, exist_ok=True)
+        
+    dp.save_data(datasets_merged, os.path.join(output_path, "client_data.csv"))
 except Exception as exception:
     logger.error(exception)
