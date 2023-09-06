@@ -1,6 +1,6 @@
 
 import yaml
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, make_response
 
 import pandas as pd
 import logging.config
@@ -25,25 +25,34 @@ logging.config.dictConfig(log_config)
 logger = logging.getLogger("api")
 
 
+def upload_files(request):
+    """
+    Upload and save personal and financial data files.
+    :param request: Flask request object.
+    :return: Paths for personal and financial data files.
+    """
+    personal_data_file = request.files['personal_data']
+    financial_data_file = request.files['financial_data']
+
+    personal_data_path = os.path.join(API_VERSION, "uploads/personal_data.csv")
+    financial_data_path = os.path.join(API_VERSION, "uploads/financial_data.csv")
+    personal_data_file.save(personal_data_path)
+    financial_data_file.save(financial_data_path)
+    return personal_data_path, financial_data_path
+
+
 @app.route('/process_data', methods=['POST'])
 def process_data():
+    """
+    Process uploaded data, merge datasets, and save the result.
+    :return: Flask response with processed data or error message.
+    """
     try:
         data = request.form.get('data')
-        if data:
-            countries = []
-            try:
-                data_dict = json.loads(data)
-                countries = data_dict.get('countries', [])
-            except json.JSONDecodeError as exception:
-                logger.error(exception)
+        data_dict = json.loads(data)
+        countries = data_dict.get('countries', [])
         
-        personal_data_file = request.files['personal_data']
-        financial_data_file = request.files['financial_data']
-
-        personal_data_path = os.path.join(API_VERSION, "uploads/personal_data.csv")
-        financial_data_path = os.path.join(API_VERSION, "uploads/financial_data.csv")
-        personal_data_file.save(personal_data_path)
-        financial_data_file.save(financial_data_path)
+        personal_data_path, financial_data_path = upload_files(request)
         
         personal_data, financial_data = dp.load_data(personal_data_path, financial_data_path)
         logger.info(f"Loaded personal data with schema {personal_data.columns}.")
@@ -70,9 +79,15 @@ def process_data():
         dp.save_data(datasets_merged, os.path.join(output_path, output_filename))
         
         return send_file(os.path.join(output_dir, output_filename), as_attachment=True)
+    except json.JSONDecodeError as exception:
+        logger.error(exception)
+        return make_response(json.dumps({"error": "Invalid data in the request"}), 400)
+    except FileNotFoundError as exception:
+        logger.error(exception)
+        return make_response(json.dumps({"error": "File not found"}), 404)
     except Exception as exception:
         logger.error(exception)
-        return "Error processing data", 500
+        return make_response(json.dumps({"error": "Error processing data"}), 500)
 
 if __name__ == '__main__':
     app.run(debug=True)
